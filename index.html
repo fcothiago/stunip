@@ -2,9 +2,44 @@
 <html>
 	<head>
 		<meta charset="utf-8">
+		<link href="./css/">
 		<title>Check IP</title>
+		<style>
+			ul > li{
+				display:flex;
+			}
+			ul > li  span{
+				margin: 0 1rem 0 1rem;
+			}
+			ul > li span:nth-child(3){
+				flex-grow:1;
+				text-align:center;
+			}
+		</style>
 	</head>
 	<body>
-		<script type="module"></script>	
+		<main>	
+			<ul id="iplist">
+
+			</ul>	
+		</main>
+		<script type="module">
+			import * as stun from './js/icecandidates.js';
+			const addIPToList = (ip,origin) => {
+				const item = document.createElement('li');
+				const ipType = document.createElement('span');
+				const ipOrigin = document.createElement('span');
+				const ipValue = document.createElement('span');
+				ipType.innerText = ip.type;
+				ipOrigin.innerText = origin;
+				ipValue.innerText = ip.ip;
+				item.appendChild(ipOrigin);
+				item.appendChild(ipType);
+				item.appendChild(ipValue);
+				document.querySelector('#iplist').appendChild(item);
+
+			};
+			stun.getIPWithStunProtocol( (ip) => addIPToList(ip,'UDP') );
+		</script>
 	</body>
 </html>
