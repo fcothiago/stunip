@@ -2,34 +2,41 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<link href="./css/">
+		<link href="./css/style.css" rel="stylesheet">
 		<title>Check IP</title>
-		<style>
-			ul > li{
-				display:flex;
-			}
-			ul > li  span{
-				margin: 0 1rem 0 1rem;
-			}
-			ul > li span:nth-child(3){
-				flex-grow:1;
-				text-align:center;
-			}
-		</style>
 	</head>
 	<body>
-		<main>	
-			<ul id="iplist">
-
-			</ul>	
+		<main>
+			<div>
+				<h1>Your Browser may (or may not) expose your IP, even with a proxy</h1>
+				<p>WebRTC (Web Real-Time Communication) is a technology that enables real-time communication (audio, video, and data) directly between browsers or applications, without requiring plugins or external software. It is widely used in video calls, live streaming, multiplayer gaming, and peer-to-peer file sharing. WebRTC is natively supported by most modern web browsers.</p>
+				<p>The STUN protocol (Session Traversal Utilities for NAT) is used by WebRTC to help clients behind NAT (Network Address Translation) discover their public IP addresses. In some cases, where users want to hide their IP, the STUN protocol may expose it. Many VPNs and browsers already address this issue by blocking or manipulating UDP datagrams.</p>
+				<p>If you are unsure whether your browser may leak your IP via WebRTC, this page will attempt to discover it using STUN and other methods, then display all detected IPs in the table below.</p>
+			</div>
+			<div>
+				<table>
+					<thead>
+						<tr>
+							<th>Origin</th>
+							<th>Version</th>
+							<th>Address</th>
+						</tr>
+					</thead>
+					<tbody id="iplist">
+						
+					</tbody>
+				</table>
+			</div>
 		</main>
 		<script type="module">
 			import * as stun from './js/icecandidates.js';
+			const ipv4Regex = /(((2[0-5]\d)|(\d\d)|(\d))\.){3}((2[0-5]\d)|(\d\d)|(\d))/;
+			const ipv6Regex = /((([0-9]|[a-f])){1,4}:){7}(([0-9]|[a-f]))/;
 			const addIPToList = (ip,origin) => {
-				const item = document.createElement('li');
-				const ipType = document.createElement('span');
-				const ipOrigin = document.createElement('span');
-				const ipValue = document.createElement('span');
+				const item = document.createElement('tr');
+				const ipType = document.createElement('td');
+				const ipOrigin = document.createElement('td');
+				const ipValue = document.createElement('td');
 				ipType.innerText = ip.type;
 				ipOrigin.innerText = origin;
 				ipValue.innerText = ip.ip;
@@ -39,7 +46,25 @@
 				document.querySelector('#iplist').appendChild(item);
 
 			};
-			stun.getIPWithStunProtocol( (ip) => addIPToList(ip,'UDP') );
+			stun.getIPWithStunProtocol( (ip) => addIPToList(ip,'stun') );
+			fetch('https://api.ipify.org/?format=json').then( async (result) => {
+				if(!result.ok)
+					return;
+				const response = await result.json();
+				if(ipv4Regex.test(response.ip))
+					addIPToList({
+						ip:response.ip,
+						port:'',
+						type:'ipv4'
+					},'ipify.org');
+				else if(ipv6Regex.test(response.ip))
+					addIPToList({
+						ip:response.ip,
+						port:'',
+						type:'ipv6'
+					},'ipify.org');
+					
+			});
 		</script>
 	</body>
 </html>

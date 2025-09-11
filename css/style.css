@@ -1,0 +1,22 @@
+body,html{
+	margin:0;
+	width:100vw;
+	text-align:justify;
+}
+main{
+	width:95%;
+	margin:auto;
+}
+main h1{
+	text-align:center;
+}
+table{
+	width:100%;
+}
+table th,table td{
+	text-align:center;
+	border-bottom:solid gray 0.1rem;
+}
+table thead{
+	background-color:rgb(235, 235, 235);
+}
